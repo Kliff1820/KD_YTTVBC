@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <link rel="icon" href="https://img.icons8.com/?size=512&id=110582&format=png" type="image/png"> 
+<title>YouTube TV Billing Calculator</title>
+
+  <!-- Load Select2 and jQuery (before DOM ready) -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+  
+  <style>
+  body {
+    background: linear-gradient(to right, #f0f4f8, #e8ecf4);
+    font-family: 'Inter', sans-serif;
+    padding: 20px;
+    color: #1f2937;
+  }
+  .container {
+  max-width: 800px;
+  margin: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 700;
+    font-size: 26px;
+    color: #111827;
+  }
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #1e3a8a;
+  }
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    color: #374151;
+  }
+  label {
+    display: block;
+    margin-top: 20px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  select, input[type="date"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px 12px;
+    margin-top: 6px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    font-size: 14px;
+  }
+  .select2-container {
+    width: 100% !important;
+    max-width: 300px;
+  }
+  button {
+    margin-top: 14px;
+    padding: 10px 22px;
+    font-size: 15px;
+    background-color: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  button:hover {
+    background-color: #2563eb;
+  }
+
+  .addon-item {
+    margin: 20px 0;
+    padding: 24px;
+    border-radius: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  }
+  .addon-item span {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 15px;
+    color: #1f2937;
+  }
+  .addon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  .addon-type {
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    background: #2563eb;
+    padding: 4px 12px;
+    border-radius: 9999px;
+  }
+  .addon-item select,
+  .addon-item input[type="date"] {
+    width: 100%;
+    max-width: 250px;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    margin-top: 6px;
+  }
+  .addon-item button {
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #e53935;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    transition: background 0.2s ease;
+  }
+  .addon-item button:hover {
+    background-color: #fef2f2;
+  }
+  #results {
+    margin-top: 30px;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+    margin: 24px 0;
+  }
+  ul {
+    padding-left: 20px;
+    margin: 10px 0;
+  }
+  li {
+    margin-bottom: 6px;
+    font-size: 14.5px;
+  }
+  strong {
+    color: #111827;
+  }
+button:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease-in-out;
+}
+.addon-item:hover {
+  box-shadow: 0 0 0 3px #dbeafe;
+  transition: box-shadow 0.2s ease-in-out;
+}
+#results {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#results.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+h2 {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 100;
+  padding: 10px;
+}
+  .card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+body {
+    background: linear-gradient(to bottom right, #f0f4ff, #ffffff);
+  }
+ input, select, button {
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: inset 2px 2px 6px #d1d9e6, inset -2px -2px 6px #ffffff;
+  }
+
+  .calculator-container-dark {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  width: 280px;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 6px 6px 12px #141414, -6px -6px 12px #2e2e2e;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  z-index: 9999;
+}
+
+.calculator-container-dark h3 {
+  text-align: center;
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #90cdf4;
+}
+
+#calcHistory {
+  font-size: 0.95rem;
+  color: #bbb;
+  text-align: right;
+  min-height: 20px;
+  padding-right: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#calcDisplay {
+  width: 100%;
+  font-size: 1.2rem; /* ↓ made smaller */
+  padding: 18px 12px; /* ↓ reduced padding */
+  height: 80px;       /* ↓ smaller box height */
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: none;
+  text-align: right;
+  box-sizing: border-box;
+  background: #1f1f1f;
+  color: #0ff;
+  overflow-x: auto;
+  white-space: nowrap;
+  direction: ltr;
+  word-break: normal;
+  text-overflow: initial;
+  box-shadow: inset 2px 2px 4px #111, inset -2px -2px 4px #2a2a2a;
+}
+
+.calculator-buttons-dark {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.calculator-buttons-dark button {
+  padding: 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 4px 4px 8px #121212, -4px -4px 8px #2c2c2c;
+}
+
+.calculator-buttons-dark button:hover {
+  background: #333;
+  transform: translateY(-2px);
+}
+
+.calculator-buttons-dark button:active {
+  transform: scale(0.98);
+  box-shadow: inset 2px 2px 4px #111, inset -2px -2px 4px #2c2c2c;
+}
+
+.equal-btn {
+  background-color: #00aaff;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 170, 255, 0.4);
+}
+
+.equal-btn:hover {
+  background-color: #0088cc;
+}
+@media (max-width: 768px) {
+  .container {
+    padding-right: 40px; /* Restore original padding */
+  }
+}
+</style>  
+</head>
+<body>
+  <div class="container">
+   <div style="text-align: center; margin-bottom: 20px;">
+  <img src="https://img.icons8.com/?size=512&id=110582&format=png" alt="Logo" width="100" height="100" style="vertical-align: middle;">
+  <span style="font-size: 24px; font-weight: bold; margin-left: 10px;">YouTube TV Billing Calculator</span>
+</div>
+
+    <label for="basePurchaseDate">Base Plan Purchase Date:</label>
+    <input type="date" id="basePurchaseDate" />
+
+    <label for="baseTrialDays">Free Trial Days (Base Plan):</label>
+    <select id="baseTrialDays"></select>
+
+    <label for="addonSelect">Select Add-on:</label>
+    <select id="addonSelect"></select>
+    <button onclick="addAddon()">Add</button>
+
+    <div id="addonsContainer"></div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="results" class="card" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    const basePrice = 82.99;
+    const addons = [
+  { name: "4K Plus", price: 9.99, type: "Bundled" },
+  { name: "Acorn TV", price: 8.99, type: "INS" },
+  { name: "ALLBLK", price: 5.99, type: "INS" },
+  { name: "AMC+", price: 8.99, type: "Bundled" },
+  { name: "ATRESplayer", price: 4.99, type: "INS" },
+  { name: "BET+", price: 10.99, type: "INS" },
+  { name: "Cinemax", price: 9.99, type: "INS" },
+  { name: "Comedy Dynamics", price: 4.99, type: "INS" },
+  { name: "CONtv", price: 4.99, type: "INS" },
+  { name: "Crunchyroll", price: 7.99, type: "INS" },
+  { name: "Dekkoo", price: 9.99, type: "INS" },
+  { name: "Docurama", price: 4.99, type: "INS" },
+  { name: "Dove", price: 4.99, type: "INS" },
+  { name: "Entertainment Plus", price: 29.99, type: "Bundled" },
+  { name: "Fandor", price: 3.99, type: "INS" },
+  { name: "Filipino Plus", price: 24.99, type: "INS" },
+  { name: "FOX Nation", price: 7.99, type: "INS" },
+  { name: "Gaia", price: 13.99, type: "INS" },
+  { name: "GMA Pinoy", price: 19.99, type: "INS" },
+  { name: "Hallmark+", price: 7.99, type: "INS" },
+  { name: "HBO Max", price: 16.99, type: "Bundled" },
+  { name: "HereTV", price: 7.99, type: "INS" },
+  { name: "Hi-YAH!", price: 3.99, type: "INS" },
+  { name: "Hopster", price: 7.99, type: "INS" },
+  { name: "IFC Films Unlimited", price: 5.99, type: "INS" },
+  { name: "Law & Crime", price: 1.99, type: "INS" },
+  { name: "Magnolia Selects", price: 4.99, type: "INS" },
+  { name: "MGM+", price: 6.99, type: "INS" },
+  { name: "MovieSphere", price: 4.99, type: "INS" },
+  { name: "MyOutdoorTV", price: 9.99, type: "INS" },
+  { name: "NBA TV", price: 8.99, type: "INS" },
+  { name: "NFL RedZone with Sports Plus", price: 10.99, type: "Bundled" },
+  { name: "Outside", price: 4.99, type: "INS" },
+  { name: "Paramount+ With Showtime on YouTube TV", price: 10.99, type: "INS" },
+  { name: "PokerGO", price: 19.99, type: "INS" },
+  { name: "Qello Concerts", price: 11.99, type: "INS" },
+  { name: "RCN Total / Canal RCN", price: 4.99, type: "INS" },
+  { name: "Screambox", price: 4.99, type: "INS" },
+  { name: "Screenpic", price: 2.99, type: "INS" },
+  { name: "Shudder", price: 5.99, type: "INS" },
+  { name: "Spanish Plus", price: 14.99, type: "Bundled" },
+  { name: "Starz", price: 10.99, type: "INS" },
+  { name: "Starz + MGM+", price: 11.99, type: "Bundled" },
+  { name: "Stingray Classica", price: 6.99, type: "INS" },
+  { name: "Stingray Djazz", price: 6.99, type: "INS" },
+  { name: "Sundance Now", price: 6.99, type: "INS" },
+  { name: "TasteMade+", price: 2.99, type: "INS" },
+  { name: "The Great Courses", price: 7.99, type: "INS" },
+  { name: "Up Faith & Family", price: 4.99, type: "INS" },
+  { name: "ViX Premium", price: 8.99, type: "INS" },
+  { name: "VSiN", price: 3.99, type: "INS" },
+  { name: "WE tv+", price: 5.99, type: "Bundled" },
+  { name: "Zee Family", price: 14.99, type: "INS" }
+];
+
+    const addedAddons = [];
+
+    $(document).ready(function () {
+      // Populate base trial dropdown
+      for (let i = 0; i <= 30; i++) {
+  const label = i === 0 ? "0 (No Free Trial)" : i;
+  $('#baseTrialDays').append(`<option value="${i}">${label}</option>`);
+}
+
+      // Populate add-on dropdown
+      addons.forEach((addon, index) => {
+        $('#addonSelect').append(`<option value="${index}">${addon.name} ($${addon.price}) - ${addon.type}</option>`);
+      });
+
+      // Enable Select2
+      $('#addonSelect').select2();
+    });
+
+    function addAddon() {
+      const index = document.getElementById("addonSelect").value;
+      const addon = addons[index];
+      if (addedAddons.find(a => a.name === addon.name)) return;
+
+      addedAddons.push({ name: addon.name, price: addon.price, trial: 0, type: addon.type });
+
+      const container = document.getElementById("addonsContainer");
+      const div = document.createElement("div");
+      div.className = "addon-item";
+      div.id = `addon-${addon.name.replace(/\s+/g, '')}`;
+      
+div.innerHTML = `
+  <div class="addon-header">
+    <span>${addon.name}</span>
+    <span class="addon-type">${addon.type}</span>
+  </div>
+  <span>
+    Free Trial Days:
+    <select onchange="updateTrial('${addon.name}', this.value)">
+  ${Array.from({length: 31}, (_, i) => `<option value="${i}">${i === 0 ? "0 (No Free Trial)" : i}</option>`).join("")}
+</select>
+  </span>
+  <span>
+    Purchase Date
+    <input type="date" onchange="updateAddonDate('${addon.name}', this.value)" />
+  </span>
+  <button onclick="removeAddon('${addon.name}')">❌ Remove</button>
+`;
+      container.appendChild(div);
+    }
+
+    function updateTrial(name, value) {
+      const addon = addedAddons.find(a => a.name === name);
+      if (addon) addon.trial = parseInt(value);
+    }
+
+    function updateAddonDate(name, value) {
+      const addon = addedAddons.find(a => a.name === name);
+      if (addon) addon.purchaseDate = value;
+    }
+
+    function removeAddon(name) {
+      const index = addedAddons.findIndex(a => a.name === name);
+      if (index !== -1) {
+        addedAddons.splice(index, 1);
+        document.getElementById(`addon-${name.replace(/\s+/g, '')}`).remove();
+      }
+    }
+
+    function calculate() {
+  const baseDateValue = document.getElementById("basePurchaseDate").value;
+  if (!baseDateValue) {
+    alert("Please select a base plan purchase date.");
+    return;
+  }
+
+  const baseDate = new Date(baseDateValue);
+  const baseTrial = parseInt(document.getElementById("baseTrialDays").value);
+  const baseTrialEnd = new Date(baseDate);
+  baseTrialEnd.setDate(baseTrialEnd.getDate() + baseTrial);
+  const nextBillDate = new Date(baseTrialEnd);
+  nextBillDate.setDate(nextBillDate.getDate() + 30);
+
+  let totalDueNow = 0;
+  let totalNextBill = basePrice;
+  let futureINS = {};
+  let breakdownLines = [];
+  let addonBreakdown = [];
+
+  addedAddons.forEach(addon => {
+    const addonPurchase = addon.purchaseDate ? new Date(addon.purchaseDate) : null;
+    const isSameDay = addonPurchase && addonPurchase.toDateString() === baseDate.toDateString();
+    const trialEnd = new Date(addonPurchase);
+    trialEnd.setDate(trialEnd.getDate() + addon.trial);
+    const dailyRate = addon.price / 30;
+
+    // Case 1: Add-ons bought same day, base plan has free trial
+    if (isSameDay && baseTrial > 0) {
+      const proratedDays = Math.max(0, (baseTrialEnd - trialEnd) / 86400000);
+      const proratedCost = Math.round(dailyRate * proratedDays * 100) / 100;
+      totalDueNow += proratedCost;
+      totalNextBill += addon.price;
+      addonBreakdown.push(`<li><strong>${addon.name}</strong> (${addon.type}) - Full Price: $${addon.price.toFixed(2)}</li>`);
+      breakdownLines.push(`<li><strong>${addon.name}</strong> bought same day as base plan (with trial). Prorated $${proratedCost.toFixed(2)} now (for ${Math.floor((baseTrialEnd - trialEnd) / 86400000)} days). Full price $${addon.price.toFixed(2)} due next billing.</li>`);
+    }
+
+    // Case 2: Add-ons bought same day, base plan has NO free trial
+    else if (isSameDay && baseTrial === 0) {
+      const proratedDays = Math.max(0, (nextBillDate - trialEnd) / 86400000);
+      const proratedCost = Math.round(dailyRate * proratedDays * 100) / 100;
+
+      if (addon.trial > 0) {
+        // Logic 5 & 6 — Add-ons with own free trial → only show in next billing
+        totalNextBill += proratedCost;
+        addonBreakdown.push(`<li><strong>${addon.name}</strong> (${addon.type}) - Prorated: $${proratedCost.toFixed(2)} for ${Math.floor(proratedDays)} days</li>`);
+        breakdownLines.push(`<li><strong>${addon.name}</strong> (with own trial) bought same day as base (no trial). Prorated $${proratedCost.toFixed(2)} for ${Math.floor((nextBillDate - trialEnd) / 86400000)} days for next billing.</li>`);
+      } else {
+        // No free trial for add-on → full price next billing
+        totalNextBill += addon.price;
+        addonBreakdown.push(`<li><strong>${addon.name}</strong> (${addon.type}) - Full Price: $${addon.price.toFixed(2)}</li>`);
+        breakdownLines.push(`<li><strong>${addon.name}</strong> bought same day as base (no trial, no add-on trial). Full price $${addon.price.toFixed(2)} on next billing.</li>`);
+      }
+    }
+
+    // Case 3: INS add-on bought on different day
+    else if (addon.type === "INS") {
+      const insBillDate = new Date(trialEnd);
+      insBillDate.setDate(insBillDate.getDate() + 30);
+      const dueDateStr = insBillDate.toLocaleDateString("en-US", {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      futureINS[dueDateStr] = (futureINS[dueDateStr] || 0) + addon.price;
+    }
+
+    // Case 4: Bundled add-on bought on different day
+    else {
+      const proratedDays = Math.max(0, (nextBillDate - trialEnd) / 86400000);
+      const proratedCost = Math.round(dailyRate * proratedDays * 100) / 100;
+      totalNextBill += proratedCost;
+      addonBreakdown.push(`<li><strong>${addon.name}</strong> (${addon.type}) - Prorated: $${proratedCost.toFixed(2)} for ${Math.floor(proratedDays)} days</li>`);
+      breakdownLines.push(`<li><strong>${addon.name}</strong> (Bundled) bought on different day. Prorated $${proratedCost.toFixed(2)} for ${Math.floor((nextBillDate - trialEnd) / 86400000)} days until next billing.</li>`);
+    }
+  });
+
+  const results = document.getElementById("results");
+  results.innerHTML = `
+    <h3>💡 Summary</h3>
+    <ul>${breakdownLines.join("")}</ul>
+    <p><strong>💵 Total Due Now:</strong> $${totalDueNow.toFixed(2)}</p>
+    <p><strong>📅 Next Base Plan Billing Date:</strong> ${nextBillDate.toDateString()}</p>
+    <p><strong>🧾 Total Amount on Next Billing Date:</strong> $${totalNextBill.toFixed(2)}</p>
+    <hr />
+    <h3>📋 Breakdown (for Next Billing)</h3>
+    <ul>
+      <li><strong>YouTube TV Base Plan:</strong> $${basePrice.toFixed(2)}</li>
+      ${addonBreakdown.join("")}
+    </ul>
+  `;
+
+  if (Object.keys(futureINS).length > 0) {
+    results.innerHTML += `
+      <hr />
+      <h4>📆 Other Billing Dates (INS Add-ons Bought Separately)</h4>
+      <ul>
+        ${Object.entries(futureINS).map(([date, amt]) => `<li>${date}: $${amt.toFixed(2)}</li>`).join("")}
+      </ul>
+    `;
+  }
+
+  results.classList.add("show");
+}
+
+
+</script>
+
+<footer style="margin-top:40px;text-align:center;font-size:14px;color:#94a3b8;">
+    Made by Klifford J. ▄︻デ══━一💥
+  </footer>
+
+<div class="calculator-container-dark">
+  <h3>🧮 Calculator</h3>
+  <div id="calcHistory" class="calc-history"></div>
+<input type="text" id="calcDisplay" readonly />
+
+  <div class="calculator-buttons-dark">
+  <button onclick="handlePercent()">%</button>
+  <button onclick="clearCalc()">C</button>
+  <button onclick="deleteLast()">←</button>
+  <button onclick="press('/')">÷</button>
+
+  <button onclick="press('7')">7</button>
+  <button onclick="press('8')">8</button>
+  <button onclick="press('9')">9</button>
+  <button onclick="press('*')">×</button>
+
+  <button onclick="press('4')">4</button>
+  <button onclick="press('5')">5</button>
+  <button onclick="press('6')">6</button>
+  <button onclick="press('-')">−</button>
+
+  <button onclick="press('1')">1</button>
+  <button onclick="press('2')">2</button>
+  <button onclick="press('3')">3</button>
+  <button onclick="press('+')">+</button>
+
+  <button onclick="press('0')">0</button>
+  <button onclick="press('.')">.</button>
+  <div></div>
+  <button class="equal-btn" onclick="runCalculator()">=</button>
+</div>
+</div>
+
+<script>
+let currentInput = "";
+let previousValue = "";
+let currentOperator = "";
+let justEvaluated = false;
+
+function press(value) {
+  appendValue(value);
+}
+
+function appendValue(value) {
+  const operators = ['+', '-', '*', '/'];
+  const lastChar = currentInput.slice(-1);
+  const historyDisplay = document.getElementById("calcHistory");
+
+  if (justEvaluated && !operators.includes(value)) {
+    currentInput = "";
+    historyDisplay.textContent = "";
+    justEvaluated = false;
+  }
+
+  if (operators.includes(value)) {
+    if (operators.includes(lastChar)) {
+      currentInput = currentInput.slice(0, -1) + value;
+    } else {
+      currentInput += value;
+    }
+    justEvaluated = false;
+  } else if (value === '.') {
+    const parts = currentInput.split(/[+\-*/]/);
+    const lastPart = parts[parts.length - 1];
+    if (lastPart.includes('.')) return;
+    currentInput += value;
+  } else {
+    currentInput += value;
+  }
+
+  // Split input by operators to get the last numeric value
+  const parts = currentInput.split(/([+\-*/])/g);
+  for (let i = 0; i < parts.length; i++) {
+    if (!operators.includes(parts[i]) && parts[i] !== '' && !parts[i].includes('.')) {
+      // Format integer part only
+      parts[i] = parseInt(parts[i]).toLocaleString();
+    }
+  }
+
+  const displayInput = parts
+    .join('')
+    .replace(/\//g, '÷')
+    .replace(/\*/g, '×')
+    .replace(/-/g, '−');
+
+  document.getElementById("calcDisplay").value = displayInput;
+}
+
+function formatNumberWithCommas(value) {
+  const parts = value.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
+
+function runCalculator() {
+  try {
+    const result = eval(currentInput);
+    const historyDisplay = document.getElementById("calcHistory");
+
+    if (currentInput && !justEvaluated) {
+      // Display user input (with readable operators) in history
+      const readableHistory = currentInput
+        .replace(/\*/g, '×')
+        .replace(/\//g, '÷')
+        .replace(/\-/g, '−');
+      historyDisplay.textContent = readableHistory + " =";
+    }
+
+    const formattedResult = formatNumberWithCommas(result);
+    document.getElementById("calcDisplay").value = formattedResult;
+    currentInput = result.toString();
+    justEvaluated = true;
+  } catch {
+    document.getElementById("calcDisplay").value = "Error";
+  }
+}
+
+function clearCalc() {
+  currentInput = "";
+  previousValue = "";
+  currentOperator = "";
+  justEvaluated = false;
+  document.getElementById("calcDisplay").value = "";
+  document.getElementById("calcHistory").textContent = "";
+}
+
+function deleteLast() {
+  currentInput = currentInput.slice(0, -1);
+  document.getElementById("calcDisplay").value = currentInput;
+}
+
+// Keyboard support
+document.addEventListener("keydown", function (e) {
+  const key = e.key;
+  const isTypingField = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA';
+  const isCalcInput = document.activeElement.id === "calcDisplay";
+
+  if (isTypingField && !isCalcInput) return;
+
+  if (!isNaN(key)) {
+    press(key);
+  } else if (['+', '-', '*', '/', '.'].includes(key)) {
+    press(key);
+  } else if (key === 'Enter') {
+    e.preventDefault();
+    runCalculator();
+  } else if (key === 'Backspace') {
+    deleteLast();
+  } else if (key === 'Escape') {
+    clearCalc();
+  } else if (e.shiftKey && e.key === 'F5') {
+    e.preventDefault();
+    handlePercent();
+  } else if (key === '%') {
+    e.preventDefault();
+    handlePercent();
+  }
+});
+
+// Continuously watch calcDisplay and scroll to right when text changes
+let previousText = "";
+setInterval(() => {
+  const display = document.getElementById("calcDisplay");
+  if (display.value !== previousText) {
+    display.scrollLeft = display.scrollWidth;
+    previousText = display.value;
+  }
+}, 50);
+
+function handlePercent() {
+  const match = currentInput.match(/([\d.]+)([+\-*/])([\d.]*)$/);
+  if (!match) return;
+
+  const [_, left, operator, right] = match;
+  if (!right) return;
+
+  let percentResult;
+  if (operator === "+" || operator === "-") {
+    percentResult = (parseFloat(left) * parseFloat(right)) / 100;
+  } else if (operator === "*" || operator === "/") {
+    percentResult = parseFloat(right) / 100;
+  } else {
+    return;
+  }
+
+  const replaced = currentInput.replace(/([\d.]+)([+\-*/])([\d.]*)$/, `${left}${operator}${percentResult}`);
+  currentInput = replaced;
+  document.getElementById("calcDisplay").value = currentInput
+    .replace(/\//g, '÷')
+    .replace(/\*/g, '×')
+    .replace(/\-/g, '−');
+}
+
+</script>
+
+</body>
+</html>
